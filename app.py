@@ -4,15 +4,15 @@ from InputForm import InputForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import URL, DataRequired
 import secrets
-
+ 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "Mg#i8t!@Rd6"
-
+ 
 shortened_urls = []
-
+ 
 # Define a data structure for storing metadata about short URLs
 url_metadata = {}
-
+ 
 @app.route("/", methods=["GET", "POST"])
 def home():
     form = InputForm()
@@ -27,7 +27,7 @@ def home():
         else:
             flash("Invalid URL!", "error message")
     return render_template("index.html", form=form)
-
+ 
 @app.route("/<id>")
 def shortened(id):
     for shortened_url in shortened_urls:
@@ -35,13 +35,13 @@ def shortened(id):
             url_metadata[id]["hits"] += 1
             return redirect(shortened_url["destination_url"])
     return abort(404)
-
+ 
 # New API endpoint to create short URLs
 @app.route("/api/create", methods=["POST"])
 def api_create_short_url():
     data = request.get_json()
     long_url = data.get('long_url')
-
+ 
     if long_url:
         id = secrets.token_urlsafe(8)
         short_url = request.base_url + id
@@ -50,7 +50,7 @@ def api_create_short_url():
         return jsonify({"short_url": short_url})
     else:
         return jsonify({"error": "Invalid request"}), 400
-
+ 
 # New API endpoint to search for URLs by title
 @app.route("/api/search", methods=["GET"])
 def api_search_url():
@@ -65,7 +65,7 @@ def api_search_url():
             }
             results.append(result)
     return jsonify(results)
-
+ 
 # New API endpoint to get metadata for a short URL
 @app.route("/api/metadata/<id>", methods=["GET"])
 def api_get_metadata(id):
@@ -77,6 +77,6 @@ def api_get_metadata(id):
         })
     else:
         return jsonify({"error": "Short URL not found"}), 404
-
+ 
 if __name__ == "__main__":
     app.run(debug=True)
