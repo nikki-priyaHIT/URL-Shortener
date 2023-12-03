@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, flash, redirect, abort, jsonify
 from flask_wtf import FlaskForm
-from InputForm import InputForm
+# from InputForm import InputForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import URL, DataRequired
 import secrets
@@ -12,6 +12,10 @@ shortened_urls = []
  
 # Define a data structure for storing metadata about short URLs
 url_metadata = {}
+
+class InputForm(FlaskForm):
+    url = StringField("URL", validators=[DataRequired(), URL()])
+    submit = SubmitField("Shorten")
  
 @app.route("/", methods=["GET", "POST"])
 def home():
@@ -26,7 +30,7 @@ def home():
             form.url.data = ''
         else:
             flash("Invalid URL!", "error message")
-    return render_template("index.html", form=form)
+    return render_template("index.html", form=form, messages=get_flashed_messages(with_categories=True))
  
 @app.route("/<id>")
 def shortened(id):
